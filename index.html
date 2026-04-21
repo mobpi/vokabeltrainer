@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Vocab-Master 🇬🇧🇩🇪</title>
+    <style>
+        :root {
+            --bg-color: #F2F2F7;
+            --card-bg: #FFFFFF;
+            --text-main: #1C1C1E;
+            --text-muted: #8E8E93;
+            --btn-leicht: #34C759;
+            --btn-mittel: #FF9500;
+            --btn-master: #FF3B30;
+            --btn-default: #E5E5EA;
+            --btn-action: #007AFF;
+            
+            /* Farben für die Vokabel-Karte */
+            --vocab-bg: #E3F2FD;
+            --vocab-border: #bbdefb;
+            --vocab-text: #0d47a1;
+            
+            /* Farben für Settings-Bereich */
+            --settings-bg: #F8F8F9;
+            --settings-border: #E5E5EA;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            /* FIX: flex-start erlaubt korrektes Scrollen auf dem Handy, wenn die Box sehr hoch wird! */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            padding: 40px 20px;
+            box-sizing: border-box;
+            overscroll-behavior-y: contain; 
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 420px;
+            padding: 35px 25px;
+            box-sizing: border-box;
+            text-align: center;
+            display: none;
+            position: relative;
+            overflow: hidden;
+            margin: 0 auto;
+        }
+
+        #login-screen { display: block; }
+
+        h1 { font-size: 2.2rem; font-weight: 800; margin-top: 0; margin-bottom: 5px; letter-spacing: -0.5px; }
+        p.subtitle { color: var(--text-muted); margin-bottom: 25px; font-size: 1.05rem; }
+
+        /* ROBUSTES INPUT-FELD FÜR DEN NAMEN */
+        .input-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        input[type="text"] {
+            width: 100%; 
+            padding: 18px 20px; 
+            font-size: 1.3rem;
+            background-color: #F8F8F9;
+            border: 2px solid #E5E5EA; 
+            border-radius: 16px;
+            box-sizing: border-box;
+            text-align: center; 
+            outline: none;
+            color: var(--text-main);
+            font-weight: 600;
+            transition: all 0.2s ease;
+            -webkit-appearance: none;
+        }
+
+        input[type="text"]::placeholder { color: #A1A1A6; font-weight: 500; }
+        input[type="text"]:focus {
+            background-color: #FFFFFF;
+            border-color: var(--btn-action);
+            box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.15);
+        }
+
+        .btn {
+            display: block; width: 100%; padding: 18px; margin-bottom: 12px;
+            border: none; border-radius: 16px; font-size: 1.1rem;
+            font-weight: 700; color: white; cursor: pointer;
+            transition: transform 0.1s ease, box-shadow 0.2s;
+            -webkit-appearance: none;
+        }
+        .btn:active { transform: scale(0.97); }
+
+        .btn-action { background-color: var(--btn-action); box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3); }
+        .btn-leicht { background-color: var(--btn-leicht); box-shadow: 0 4px 12px rgba(52, 199, 89, 0.3); }
+        .btn-mittel { background-color: var(--btn-mittel); box-shadow: 0 4px 12px rgba(255, 149, 0, 0.3); }
+        .btn-master { background-color: var(--btn-master); box-shadow: 0 4px 12px rgba(255, 59, 48, 0.3); }
+        .btn-secondary { background-color: var(--btn-default); color: var(--text-main); box-shadow: none; margin-top: 15px;}
+
+        /* NEU: Settings-Card für eine aufgeräumte Optik */
+        .settings-card {
+            background-color: var(--settings-bg);
+            border: 1px solid var(--settings-border);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 25px;
+            text-align: left;
+        }
+
+        .settings-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+
+        .setting-label {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-main);
+            display: block;
+        }
+
+        /* Checkbox Styling */
+        .checkbox-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        .checkbox-row input[type="checkbox"] {
+            width: 20px; height: 20px; margin-right: 10px;
+            accent-color: var(--btn-action);
+        }
+
+        /* Segmented Controls (Schalter) */
+        .segmented-control {
+            display: flex;
+            background-color: var(--btn-default);
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 20px;
+        }
+        .segmented-control:last-child { margin-bottom: 0; }
+
+        .seg-btn {
+            flex: 1; padding: 10px 2px; border: none; background: transparent;
+            border-radius: 10px; font-size: 0.85rem; font-weight: 600;
+            color: var(--text-muted); cursor: pointer; transition: all 0.2s ease;
+            -webkit-appearance: none;
+        }
+        .seg-btn.active {
+            background-color: #FFFFFF; color: var(--text-main); box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        /* Timer Bar */
+        #timer-container {
+            width: 100%; height: 6px; background: #eee;
+            position: absolute; top: 0; left: 0; display: none;
+        }
+        #timer-bar {
+            width: 100%; height: 100%; background: var(--btn-action); transition: width 0.1s linear;
+        }
+
+        /* Joker Styles */
+        .joker-container { display: flex; gap: 10px; justify-content: center; margin-bottom: 15px; }
+        .joker-btn {
+            flex: 1; padding: 12px; border: 2px solid var(--btn-action);
+            background: white; color: var(--btn-action); border-radius: 12px;
+            font-weight: bold; cursor: pointer; font-size: 0.85rem; transition: all 0.2s ease;
+        }
+        .joker-btn:disabled { border-color: var(--btn-default); color: var(--text-muted); cursor: not-allowed; opacity: 0.5; }
+
+        /* Vokabel Karte */
+        .vocab-card {
+            width: 100%; min-height: 180px; 
+            background: var(--vocab-bg); border: 2px solid var(--vocab-border);
+            color: var(--vocab-text); border-radius: 16px; 
+            margin-bottom: 25px; padding: 20px;
+            box-sizing: border-box; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            font-size: 1.4rem; font-weight: 800; line-height: 1.3;
+            box-shadow: inset 0 4px 10px rgba(0,0,0,0.03);
+            word-wrap: break-word;
+        }
+
+        .answers-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .answer-btn {
+            padding: 16px 8px; border: none; border-radius: 14px;
+            background: var(--btn-default); font-weight: 600; font-size: 0.95rem; cursor: pointer;
+            transition: transform 0.1s ease, background-color 0.2s;
+            color: var(--text-main); -webkit-appearance: none;
+        }
+        .answer-btn:active { transform: scale(0.95); }
+        .answer-btn.correct { background: var(--btn-leicht) !important; color: white; }
+        .answer-btn.wrong { background: var(--btn-master) !important; color: white; }
+        .answer-btn.hidden { visibility: hidden; }
+
+        /* Leaderboard & Reset Button */
+        .leaderboard-box {
+            background: var(--bg-color); border-radius: 16px; padding: 15px;
+            margin: 20px 0; text-align: left; max-height: 220px; overflow-y: auto;
+        }
+        .score-row {
+            display: flex; justify-content: space-between; font-size: 0.9rem;
+            padding: 10px 0; border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        .score-row:last-child { border-bottom: none; }
+        
+        .btn-reset {
+            background: none; border: none; color: var(--btn-master);
+            font-size: 0.85rem; font-weight: 700; cursor: pointer;
+            margin-top: 15px; width: 100%; text-align: center;
+            opacity: 0.7; transition: opacity 0.2s; padding: 5px;
+        }
+        .btn-reset:hover { opacity: 1; }
+        
+        @media (max-width: 400px) {
+            body { padding: 20px 15px; }
+            .container { padding: 25px 15px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="login-screen">
+        <h1>Vocab-Master 🇬🇧🇩🇪</h1>
+        <p class="subtitle">Willkommen! Wer lernt heute?</p>
+        <form id="login-form">
+            <div class="input-group">
+                <input type="text" id="player-name" placeholder="Dein Name" required autocomplete="off">
+            </div>
+            <button type="submit" class="btn btn-action">Startklar!</button>
+        </form>
+    </div>
+
+    <div class="container" id="start-screen">
+        <h1 id="greeting-text">Hallo!</h1>
+        <p class="subtitle" style="margin-bottom: 15px;">Bitte wähle deine Einstellungen:</p>
+        
+        <div class="settings-card">
+            <p class="settings-title">⚙️ Optionen</p>
+            
+            <div class="checkbox-row">
+                <input type="checkbox" id="time-attack-mode">
+                <label for="time-attack-mode">Zeitdruck-Modus (10s pro Frage)</label>
+            </div>
+            
+            <label class="setting-label">Übersetzungs-Richtung:</label>
+            <div class="segmented-control">
+                <button class="seg-btn" onclick="setDirection('EN-DE', this)">🇬🇧 ➔ 🇩🇪</button>
+                <button class="seg-btn active" onclick="setDirection('all', this)">🔀 Beides</button>
+                <button class="seg-btn" onclick="setDirection('DE-EN', this)">🇩🇪 ➔ 🇬🇧</button>
+            </div>
+
+            <label class="setting-label">Anzahl der Vokabeln:</label>
+            <div class="segmented-control" id="amount-control">
+                <button class="seg-btn active" onclick="setLimit(5, this)">5</button>
+                <button class="seg-btn" onclick="setLimit(10, this)">10</button>
+                <button class="seg-btn" onclick="setLimit(15, this)">15</button>
+                <button class="seg-btn" onclick="setLimit('all', this)">Alle</button>
+            </div>
+        </div>
+        
+        <p class="setting-label" style="margin-bottom: 10px; text-align: left;">Wähle dein Thema um zu starten:</p>
+        <div id="category-buttons-container"></div>
+    </div>
+
+    <div class="container" id="quiz-screen">
+        <div id="timer-container"><div id="timer-bar"></div></div>
+        <div class="counter" id="question-counter" style="color:var(--text-muted); font-weight:bold; margin-bottom:15px;">Frage 1</div>
+        <div class="joker-container">
+            <button id="joker-5050" class="joker-btn" onclick="useJoker5050()">50:50 Joker</button>
+            <button id="joker-chance" class="joker-btn" onclick="useJokerChance()">2. Chance</button>
+        </div>
+        
+        <div class="vocab-card" id="vocab-box"></div>
+        <div class="answers-grid" id="answers-container"></div>
+    </div>
+
+    <div class="container" id="end-screen">
+        <h1>Ergebnis</h1>
+        <div style="font-size: 4rem; font-weight: 800; color: var(--btn-action); margin: 10px 0;" id="final-score">0/0</div>
+        <p id="final-time" style="font-weight: 600; color: var(--text-muted);"></p>
+        <div class="leaderboard-box">
+            <p style="text-align:center; font-weight:800; margin-top:0;">🏆 TOP RANKING</p>
+            <div id="leaderboard-content"></div>
+            <button class="btn-reset" onclick="resetLeaderboard()">🗑️ Spielstände löschen</button>
+        </div>
+        <button class="btn btn-action" onclick="showScreen('start-screen')">Neues Thema wählen</button>
+        <button class="btn btn-secondary" onclick="logout()">Spieler wechseln</button>
+    </div>
+
+    <script>
+        const questionsData = [
+            { "category": "Elektrotechnik", "question": "Was bedeutet: alternating current?", "correct": "Wechselstrom", "incorrect": ["Gleichstrom", "Starkstrom", "Schwachstrom"] },
+            { "category": "Elektrotechnik", "question": "Was bedeutet: direct current?", "correct": "Gleichstrom", "incorrect": ["Wechselstrom", "Drehstrom", "Blindstrom"] },
+            { "category": "Elektrotechnik", "question": "Was bedeutet: circuit breaker?", "correct": "Leitungsschutzschalter", "incorrect": ["Fehlerstromschutzschalter", "Lasttrennschalter", "Motorschutzschalter"] },
+            { "category": "Elektrotechnik", "question": "Was bedeutet: residual current device?", "correct": "Fehlerstromschutzschalter", "incorrect": ["Leitungsschutzschalter", "Überspannungsableiter", "Hauptschalter"] },
+            { "category": "Elektrotechnik", "question": "Was bedeutet: short circuit?", "correct": "Kurzschluss", "incorrect": ["Erdschluss", "Körperschluss", "Leitungsbruch"] },
+            { "category": "Elektrotechnik", "question": "Was bedeutet: earth leakage?", "correct": "Erdschluss", "incorrect": ["Kurzschluss", "Überspannung", "Überlast"] },
+            { "category": "Elektrotechnik", "question": "Was bedeutet: reactive power?", "correct": "Blindleistung", "incorrect": ["Wirkleistung", "Scheinleistung", "Nennleistung"] },
+            { "category": "Elektrotechnik", "question": "Was bedeutet: squirrel cage?", "correct": "Käfigläufer", "incorrect": ["Schleifringläufer", "Schrittmotor", "Synchronmotor"] },
+            { "category": "Elektrotechnik", "question": "Was bedeutet: overvoltage arrester?", "correct": "Überspannungsableiter", "incorrect": ["Blitzableiter", "Fehlerstromschutzschalter", "Leistungsschalter"] },
+            { "category": "Elektrotechnik", "question": "Was bedeutet: transformer?", "correct": "Transformator", "incorrect": ["Umrichter", "Gleichrichter", "Wechselrichter"] },
+            { "category": "Elektrotechnik", "question": "Was bedeutet: voltage?", "correct": "Spannung", "incorrect": ["Strom", "Widerstand", "Leistung"] },
+            { "category": "Elektrotechnik", "question": "Was bedeutet: resistance?", "correct": "Widerstand", "incorrect": ["Leitwert", "Impedanz", "Reluktanz"] },
+            { "category": "Elektrotechnik", "question": "Was bedeutet: socket?", "correct": "Steckdose", "incorrect": ["Stecker", "Schalter", "Abzweigdose"] },
+            { "category": "Elektrotechnik", "question": "Was bedeutet: plug?", "correct": "Stecker", "incorrect": ["Steckdose", "Klemme", "Sicherung"] },
+            { "category": "Elektrotechnik", "question": "Was bedeutet: torque?", "correct": "Drehmoment", "incorrect": ["Drehzahl", "Leistung", "Beschleunigung"] },
+            { "category": "Elektrotechnik", "question": "Was bedeutet: attenuation?", "correct": "Abschwächung", "incorrect": ["Verstärkung", "Rückkopplung", "Verzerrung"] },
+            { "category": "Elektrotechnik", "question": "Was bedeutet: terminating resistor?", "correct": "Abschlusswiderstand", "incorrect": ["Vorwiderstand", "Nebenwiderstand", "Lastwiderstand"] },
+            { "category": "Elektrotechnik", "question": "Was bedeutet: clock frequency?", "correct": "Taktfrequenz", "incorrect": ["Abtastfrequenz", "Grenzfrequenz", "Sendefrequenz"] },
+            { "category": "Elektrotechnik", "question": "Was bedeutet: read-only memory?", "correct": "Festwertspeicher", "incorrect": ["Arbeitsspeicher", "Zwischenspeicher", "Flash-Speicher"] },
+            { "category": "Elektrotechnik", "question": "Was bedeutet: maximum output?", "correct": "Spitzenleistung", "incorrect": ["Durchschnittsleistung", "Wirkleistung", "Nennleistung"] },
+            { "category": "Elektrotechnik", "question": "Was bedeutet: lightning protection?", "correct": "Blitzschutz", "incorrect": ["Überspannungsschutz", "Berührungsschutz", "Brandschutz"] },
+            { "category": "Elektrotechnik", "question": "Was bedeutet: loop impedance?", "correct": "Schleifenimpedanz", "incorrect": ["Netzimpedanz", "Erdungswiderstand", "Isolationswiderstand"] },
+            { "category": "Elektrotechnik", "question": "Was bedeutet: power supply?", "correct": "Stromversorgung", "incorrect": ["Datenleitung", "Erdung", "Steuerung"] },
+            { "category": "Elektrotechnik", "question": "Was bedeutet: broadband?", "correct": "Breitband", "incorrect": ["Schmalband", "Basisband", "Seitenband"] },
+            { "category": "Elektrotechnik", "question": "Was bedeutet: optical fibre?", "correct": "Lichtwellenleiter", "incorrect": ["Kupferkabel", "Koaxialkabel", "Starkstromkabel"] },
+            { "category": "Elektrotechnik", "question": "Was bedeutet: Blindleistung?", "correct": "reactive power", "incorrect": ["active power", "apparent power", "rated power"] },
+            { "category": "Elektrotechnik", "question": "Was bedeutet: Leiterquerschnitt?", "correct": "conductor cross section", "incorrect": ["conductor length", "wire diameter", "cable shield"] },
+            { "category": "Elektrotechnik", "question": "Was bedeutet: Überspannungsableiter?", "correct": "overvoltage arrester", "incorrect": ["circuit breaker", "residual current device", "ground fault interrupter"] },
+            { "category": "Elektrotechnik", "question": "Was bedeutet: Käfigläufer?", "correct": "squirrel cage", "incorrect": ["slip-ring rotor", "synchronous rotor", "brushed rotor"] },
+            { "category": "Elektrotechnik", "question": "Was bedeutet: Schutzleiter?", "correct": "earth wire", "incorrect": ["neutral wire", "phase wire", "live wire"] },
+            { "category": "Elektrotechnik", "question": "Was bedeutet: Fehlerstrom?", "correct": "residual current", "incorrect": ["short circuit current", "rated current", "overload current"] },
+            { "category": "Elektrotechnik", "question": "Was bedeutet: Bemessungsstrom?", "correct": "rated current", "incorrect": ["peak current", "nominal voltage", "starting current"] },
+            { "category": "Elektrotechnik", "question": "Was bedeutet: Gleichstrom?", "correct": "direct current", "incorrect": ["alternating current", "three-phase current", "ripple current"] },
+            { "category": "Elektrotechnik", "question": "Was bedeutet: Stromkreis?", "correct": "electrical circuit", "incorrect": ["network", "loop", "grid"] },
+            { "category": "Elektrotechnik", "question": "Was bedeutet: Steckdose?", "correct": "socket", "incorrect": ["plug", "switch", "connector"] },
+            { "category": "Elektrotechnik", "question": "Was bedeutet: Drehmoment?", "correct": "torque", "incorrect": ["speed", "momentum", "force"] },
+            { "category": "Elektrotechnik", "question": "Was bedeutet: Spannung?", "correct": "voltage", "incorrect": ["current", "resistance", "power"] },
+            { "category": "Elektrotechnik", "question": "Was bedeutet: Widerstand?", "correct": "resistance", "incorrect": ["capacitance", "inductance", "impedance"] },
+            { "category": "Elektrotechnik", "question": "Was bedeutet: Isolationsfehler?", "correct": "insulation defect", "incorrect": ["short circuit", "wire break", "contact failure"] },
+            { "category": "Elektrotechnik", "question": "Was bedeutet: Kabelbinder?", "correct": "cable binder", "incorrect": ["cable channel", "cable duct", "cable lug"] },
+            { "category": "Elektrotechnik", "question": "Was bedeutet: Sicherungselement?", "correct": "fuse element", "incorrect": ["switch element", "contact element", "relay element"] },
+            { "category": "Elektrotechnik", "question": "Was bedeutet: Spule (Drossel)?", "correct": "reactor", "incorrect": ["capacitor", "resistor", "diode"] },
+            { "category": "Elektrotechnik", "question": "Was bedeutet: Kontaktabbrand?", "correct": "contact erosion", "incorrect": ["contact resistance", "contact bouncing", "contact gap"] },
+            { "category": "Elektrotechnik", "question": "Was bedeutet: Ableitstrom?", "correct": "leakage current", "incorrect": ["fault current", "continuous current", "peak current"] },
+            { "category": "Elektrotechnik", "question": "Was bedeutet: Ablenkgenerator?", "correct": "sweep generator", "incorrect": ["pulse generator", "signal generator", "clock generator"] },
+            { "category": "Elektrotechnik", "question": "Was bedeutet: Abschnürspannung?", "correct": "pinch-off voltage", "incorrect": ["breakdown voltage", "threshold voltage", "peak voltage"] },
+            { "category": "Elektrotechnik", "question": "Was bedeutet: Echtzeit?", "correct": "real time", "incorrect": ["access time", "delay time", "execution time"] },
+            { "category": "Elektrotechnik", "question": "Was bedeutet: Datennetz?", "correct": "data network", "incorrect": ["power grid", "supply network", "bus system"] },
+            { "category": "Elektrotechnik", "question": "Was bedeutet: Spleißgerät?", "correct": "splicing tool", "incorrect": ["crimping tool", "soldering iron", "wire stripper"] },
+            { "category": "Elektrotechnik", "question": "Was bedeutet: Neutralleiter?", "correct": "neutral conductor", "incorrect": ["phase conductor", "earth wire", "protective conductor"] },
+            { "category": "Berufsbildung & Arbeitswelt", "question": "Was bedeutet: apprentice?", "correct": "Auszubildender", "incorrect": ["Facharbeiter", "Meister", "Bauleiter"] },
+            { "category": "Berufsbildung & Arbeitswelt", "question": "Was bedeutet: occupation?", "correct": "Beruf", "incorrect": ["Ausbildung", "Praktikum", "Studium"] },
+            { "category": "Berufsbildung & Arbeitswelt", "question": "Was bedeutet: skilled worker?", "correct": "Facharbeiter", "incorrect": ["Helfer", "Ausbilder", "Lehrling"] },
+            { "category": "Berufsbildung & Arbeitswelt", "question": "Was bedeutet: part-time vocational school?", "correct": "Berufsschule", "incorrect": ["Universität", "Gymnasium", "Grundschule"] },
+            { "category": "Berufsbildung & Arbeitswelt", "question": "Was bedeutet: employer?", "correct": "Arbeitgeber", "incorrect": ["Arbeitnehmer", "Auszubildender", "Gewerkschaft"] },
+            { "category": "Berufsbildung & Arbeitswelt", "question": "Was bedeutet: maintenance?", "correct": "Wartung", "incorrect": ["Reparatur", "Konstruktion", "Produktion"] },
+            { "category": "Berufsbildung & Arbeitswelt", "question": "Was bedeutet: plumber?", "correct": "Installateur", "incorrect": ["Elektriker", "Tischler", "Maurer"] },
+            { "category": "Berufsbildung & Arbeitswelt", "question": "Was bedeutet: technical drawing?", "correct": "Technisches Zeichnen", "incorrect": ["Kunstunterricht", "Mathematik", "Informatik"] },
+            { "category": "Berufsbildung & Arbeitswelt", "question": "Was bedeutet: to apply?", "correct": "anwenden", "incorrect": ["auswerten", "entwickeln", "prüfen"] },
+            { "category": "Berufsbildung & Arbeitswelt", "question": "Was bedeutet: assembly line?", "correct": "Fließband", "incorrect": ["Werkbank", "Schreibtisch", "Lager"] },
+            { "category": "Berufsbildung & Arbeitswelt", "question": "Was bedeutet: construction manager?", "correct": "Bauleiter", "incorrect": ["Bereichsleiter", "Geschäftsführer", "Helfer"] },
+            { "category": "Berufsbildung & Arbeitswelt", "question": "Was bedeutet: temporary employment?", "correct": "Zeitarbeit", "incorrect": ["Festanstellung", "Teilzeitarbeit", "Schichtarbeit"] },
+            { "category": "Berufsbildung & Arbeitswelt", "question": "Was bedeutet: quality assurance?", "correct": "Qualitätssicherung", "incorrect": ["Qualitätsprüfung", "Produktionskontrolle", "Endabnahme"] },
+            { "category": "Berufsbildung & Arbeitswelt", "question": "Was bedeutet: measurement?", "correct": "Aufmaß", "incorrect": ["Zeichnung", "Schätzung", "Planung"] },
+            { "category": "Berufsbildung & Arbeitswelt", "question": "Was bedeutet: guidelines?", "correct": "Richtlinien", "incorrect": ["Gesetze", "Verordnungen", "Normen"] },
+            { "category": "Berufsbildung & Arbeitswelt", "question": "Was bedeutet: proof?", "correct": "Nachweis", "incorrect": ["Vermutung", "Behauptung", "Theorie"] },
+            { "category": "Berufsbildung & Arbeitswelt", "question": "Was bedeutet: trainer?", "correct": "Ausbilder", "incorrect": ["Auszubildender", "Helfer", "Projektleiter"] },
+            { "category": "Berufsbildung & Arbeitswelt", "question": "Was bedeutet: managing director?", "correct": "Geschäftsführer", "incorrect": ["Teamleiter", "Bauleiter", "Meister"] },
+            { "category": "Berufsbildung & Arbeitswelt", "question": "Was bedeutet: team leader?", "correct": "Teamleiter", "incorrect": ["Geschäftsführer", "Azubi", "Helfer"] },
+            { "category": "Berufsbildung & Arbeitswelt", "question": "Was bedeutet: top floor?", "correct": "Dachgeschoss", "incorrect": ["Erdgeschoss", "Keller", "Etage"] },
+            { "category": "Berufsbildung & Arbeitswelt", "question": "Was bedeutet: cellar?", "correct": "Keller", "incorrect": ["Dachgeschoss", "Erdgeschoss", "Etage"] },
+            { "category": "Berufsbildung & Arbeitswelt", "question": "Was bedeutet: tool bag?", "correct": "Werkzeugtasche", "incorrect": ["Materialkoffer", "Laptopständer", "Kabeltrommel"] },
+            { "category": "Berufsbildung & Arbeitswelt", "question": "Was bedeutet: spirit level?", "correct": "Wasserwaage", "incorrect": ["Zollstock", "Schraubendreher", "Hammer"] },
+            { "category": "Berufsbildung & Arbeitswelt", "question": "Was bedeutet: screwdriver?", "correct": "Schraubendreher", "incorrect": ["Bohrmaschine", "Zange", "Schraubenschlüssel"] },
+            { "category": "Berufsbildung & Arbeitswelt", "question": "Was bedeutet: testing records?", "correct": "Prüfprotokoll", "incorrect": ["Messprotokoll", "Abnahmeprotokoll", "Fehlerprotokoll"] },
+            { "category": "Berufsbildung & Arbeitswelt", "question": "Was bedeutet: equipment?", "correct": "Betriebsmittel", "incorrect": ["Werkzeuge", "Materialien", "Maschinen"] },
+            { "category": "Berufsbildung & Arbeitswelt", "question": "Was bedeutet: Ausbildungsvertrag?", "correct": "articles of apprenticeship", "incorrect": ["work contract", "leasing contract", "service contract"] },
+            { "category": "Berufsbildung & Arbeitswelt", "question": "Was bedeutet: Schulpflicht?", "correct": "compulsory school attendance", "incorrect": ["optional schooling", "vocational training", "higher education"] },
+            { "category": "Berufsbildung & Arbeitswelt", "question": "Was bedeutet: Facharbeiter?", "correct": "skilled worker", "incorrect": ["apprentice", "trainee", "manager"] },
+            { "category": "Berufsbildung & Arbeitswelt", "question": "Was bedeutet: Bauleiter?", "correct": "construction manager", "incorrect": ["team leader", "managing director", "foreman"] },
+            { "category": "Berufsbildung & Arbeitswelt", "question": "Was bedeutet: Helfer?", "correct": "assistant", "incorrect": ["specialist", "manager", "technician"] },
+            { "category": "Berufsbildung & Arbeitswelt", "question": "Was bedeutet: Zeitarbeit?", "correct": "temporary employment", "incorrect": ["permanent employment", "part-time work", "shift work"] },
+            { "category": "Berufsbildung & Arbeitswelt", "question": "Was bedeutet: Aufmaß?", "correct": "measurement", "incorrect": ["documentation", "calculation", "estimation"] },
+            { "category": "Berufsbildung & Arbeitswelt", "question": "Was bedeutet: Prüfprotokoll?", "correct": "testing records", "incorrect": ["measurement records", "plans", "guidelines"] },
+            { "category": "Berufsbildung & Arbeitswelt", "question": "Was bedeutet: Herstellervorschriften?", "correct": "manufacturer's guidelines", "incorrect": ["technical policy", "testing records", "DIN norms"] },
+            { "category": "Berufsbildung & Arbeitswelt", "question": "Was bedeutet: Ausbilder?", "correct": "trainer", "incorrect": ["trainee", "apprentice", "director"] },
+            { "category": "Berufsbildung & Arbeitswelt", "question": "Was bedeutet: Geschäftsführer?", "correct": "managing director", "incorrect": ["area manager", "operational manager", "team leader"] },
+            { "category": "Berufsbildung & Arbeitswelt", "question": "Was bedeutet: Meister?", "correct": "foreman", "incorrect": ["installer", "assistant", "electrician"] },
+            { "category": "Berufsbildung & Arbeitswelt", "question": "Was bedeutet: Erdgeschoss?", "correct": "ground floor", "incorrect": ["top floor", "interior area", "ceiling"] },
+            { "category": "Berufsbildung & Arbeitswelt", "question": "Was bedeutet: Werkzeugtasche?", "correct": "tool bag", "incorrect": ["spirit level", "cable drum", "rawlplug"] },
+            { "category": "Berufsbildung & Arbeitswelt", "question": "Was bedeutet: Wasserwaage?", "correct": "spirit level", "incorrect": ["metre stick", "screwdriver", "hammer drill"] },
+            { "category": "Berufsbildung & Arbeitswelt", "question": "Was bedeutet: Schraubendreher?", "correct": "screwdriver", "incorrect": ["stanley knife", "drill", "splicing tool"] },
+            { "category": "Berufsbildung & Arbeitswelt", "question": "Was bedeutet: Kabeltrommel?", "correct": "cable drum", "incorrect": ["cable binder", "cable channel", "cable guide"] },
+            { "category": "Berufsbildung & Arbeitswelt", "question": "Was bedeutet: Bohrmaschine?", "correct": "drill", "incorrect": ["hammer drill", "screwdriver", "splicing tool"] },
+            { "category": "Berufsbildung & Arbeitswelt", "question": "Was bedeutet: Qualitätssicherung?", "correct": "quality assurance", "incorrect": ["quality control", "manufacturing", "planning"] },
+            { "category": "Berufsbildung & Arbeitswelt", "question": "Was bedeutet: Sichtprüfung?", "correct": "visual inspection", "incorrect": ["functional check", "remote diagnosis", "continuity check"] },
+            { "category": "Berufsbildung & Arbeitswelt", "question": "Was bedeutet: Ferndiagnose?", "correct": "remote diagnosis", "incorrect": ["remote maintenance", "testing", "controlling"] },
+            { "category": "Berufsbildung & Arbeitswelt", "question": "Was bedeutet: Hebebühne?", "correct": "raising platform", "incorrect": ["ladder", "scaffold", "elevator"] },
+            { "category": "Berufsbildung & Arbeitswelt", "question": "Was bedeutet: Zollstock?", "correct": "metre stick", "incorrect": ["spirit level", "measuring device", "rule"] },
+            { "category": "Berufsbildung & Arbeitswelt", "question": "Was bedeutet: Durchgangsprüfung?", "correct": "continuity check", "incorrect": ["visual inspection", "loop test", "residual current test"] },
+            { "category": "Berufsbildung & Arbeitswelt", "question": "Was bedeutet: Lehrplan?", "correct": "syllabus", "incorrect": ["technical drawing", "occupation", "education"] }
+        ];
+
+        // Auto-Detection der Übersetzungsrichtung
+        questionsData.forEach(q => {
+            const firstChar = q.incorrect[0].charAt(0);
+            if (firstChar === firstChar.toUpperCase() && firstChar.match(/[A-ZÄÖÜ]/i)) {
+                q.direction = 'EN-DE';
+            } else {
+                q.direction = 'DE-EN';
+            }
+        });
+
+        let currentPlayer = "";
+        let currentLevelQuestions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let activeCategory = "";
+        
+        let activeDirection = 'all'; 
+        let questionLimit = 5; 
+
+        let timeAttack = false;
+        let timerInterval;
+        let totalStartTime;
+
+        let joker5050Used = false;
+        let jokerChanceUsed = false;
+        let chanceActive = false;
+
+        window.onload = () => {
+            const savedName = localStorage.getItem('vocabPlayerName');
+            if (savedName) {
+                document.getElementById('player-name').value = savedName;
+            }
+        };
+
+        document.getElementById('login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            currentPlayer = document.getElementById('player-name').value.trim();
+            
+            localStorage.setItem('vocabPlayerName', currentPlayer);
+            
+            document.getElementById('greeting-text').innerText = `Hallo ${currentPlayer}!`;
+            renderCategoryButtons(); 
+            showScreen('start-screen');
+            document.getElementById('player-name').blur();
+        });
+
+        function logout() {
+            showScreen('login-screen');
+            document.getElementById('player-name').focus();
+        }
+
+        function showScreen(id) {
+            document.querySelectorAll('.container').forEach(c => c.style.display = 'none');
+            document.getElementById(id).style.display = 'block';
+        }
+
+        function setDirection(dir, btnElement) {
+            activeDirection = dir;
+            btnElement.parentElement.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+            btnElement.classList.add('active');
+        }
+
+        function setLimit(limit, btnElement) {
+            questionLimit = limit;
+            btnElement.parentElement.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+            btnElement.classList.add('active');
+        }
+
+        function renderCategoryButtons() {
+            const categories = [...new Set(questionsData.map(q => q.category))];
+            const container = document.getElementById('category-buttons-container');
+            container.innerHTML = ''; 
+            
+            const colors = ['btn-action', 'btn-mittel', 'btn-leicht', 'btn-master'];
+            
+            categories.forEach((cat, index) => {
+                const btn = document.createElement('button');
+                btn.className = `btn ${colors[index % colors.length]}`;
+                btn.innerText = cat;
+                btn.onclick = () => startQuiz(cat);
+                container.appendChild(btn);
+            });
+        }
+
+        function startQuiz(category) {
+            activeCategory = category;
+            timeAttack = document.getElementById('time-attack-mode').checked;
+            
+            currentLevelQuestions = questionsData.filter(q => {
+                const matchesCat = q.category === category;
+                const matchesDir = activeDirection === 'all' || q.direction === activeDirection;
+                return matchesCat && matchesDir;
+            });
+
+            if(currentLevelQuestions.length === 0) {
+                alert("Für diese Kombination gibt es aktuell keine Vokabeln!");
+                return;
+            }
+
+            let limitToUse = questionLimit === 'all' ? currentLevelQuestions.length : parseInt(questionLimit);
+            if (limitToUse > currentLevelQuestions.length) limitToUse = currentLevelQuestions.length;
+
+            currentLevelQuestions = currentLevelQuestions.sort(() => Math.random() - 0.5).slice(0, limitToUse);
+            
+            score = 0;
+            currentQuestionIndex = 0;
+            joker5050Used = false;
+            jokerChanceUsed = false;
+            document.getElementById('joker-5050').disabled = false;
+            document.getElementById('joker-chance').disabled = false;
+            
+            totalStartTime = Date.now();
+            showScreen('quiz-screen');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            chanceActive = false;
+            const q = currentLevelQuestions[currentQuestionIndex];
+            
+            document.getElementById('question-counter').innerText = `Frage ${currentQuestionIndex + 1} von ${currentLevelQuestions.length}`;
+            document.getElementById('vocab-box').innerText = q.question.replace("Was bedeutet: ", "");
+
+            const answers = [q.correct, ...q.incorrect].sort(() => Math.random() - 0.5);
+            const container = document.getElementById('answers-container');
+            container.innerHTML = '';
+            
+            answers.forEach(text => {
+                const b = document.createElement('button');
+                b.className = 'answer-btn';
+                b.innerText = text;
+                b.onclick = () => checkAnswer(b, text === q.correct);
+                container.appendChild(b);
+            });
+
+            if (timeAttack) startTimer();
+            else document.getElementById('timer-container').style.display = 'none';
+        }
+
+        function startTimer() {
+            const bar = document.getElementById('timer-bar');
+            const container = document.getElementById('timer-container');
+            container.style.display = 'block';
+            let timeLeft = 100;
+            bar.style.width = '100%';
+            
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeLeft -= 1;
+                bar.style.width = timeLeft + '%';
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    checkAnswer(null, false);
+                }
+            }, 100);
+        }
+
+        function checkAnswer(btn, isCorrect) {
+            clearInterval(timerInterval);
+            const q = currentLevelQuestions[currentQuestionIndex];
+            const allBtns = document.querySelectorAll('.answer-btn');
+
+            if (isCorrect) {
+                if(btn) btn.classList.add('correct');
+                score++;
+                nextStep();
+            } else {
+                if (chanceActive) {
+                    if(btn) btn.classList.add('wrong');
+                    btn.disabled = true;
+                    chanceActive = false;
+                    if (timeAttack) startTimer();
+                    return; 
+                }
+                if(btn) btn.classList.add('wrong');
+                allBtns.forEach(b => { if(b.innerText === q.correct) b.classList.add('correct'); });
+                nextStep();
+            }
+        }
+
+        function nextStep() {
+            document.querySelectorAll('.answer-btn').forEach(b => b.disabled = true);
+            setTimeout(() => {
+                currentQuestionIndex++;
+                if (currentQuestionIndex < currentLevelQuestions.length) loadQuestion();
+                else finishGame();
+            }, 1500);
+        }
+
+        function useJoker5050() {
+            joker5050Used = true;
+            document.getElementById('joker-5050').disabled = true;
+            const q = currentLevelQuestions[currentQuestionIndex];
+            const btns = Array.from(document.querySelectorAll('.answer-btn'));
+            let removed = 0;
+            btns.forEach(b => {
+                if (b.innerText !== q.correct && removed < 2) {
+                    b.classList.add('hidden');
+                    removed++;
+                }
+            });
+        }
+
+        function useJokerChance() {
+            jokerChanceUsed = true;
+            chanceActive = true;
+            document.getElementById('joker-chance').disabled = true;
+        }
+
+        function finishGame() {
+            const totalTime = ((Date.now() - totalStartTime) / 1000).toFixed(1);
+            document.getElementById('final-score').innerText = `${score}/${currentLevelQuestions.length}`;
+            document.getElementById('final-time').innerText = `Zeit: ${totalTime}s`;
+            
+            const scores = JSON.parse(localStorage.getItem('vocabScores') || '[]');
+            
+            let displayCat = activeCategory;
+            if(activeDirection === 'EN-DE') displayCat += " (EN➔DE)";
+            if(activeDirection === 'DE-EN') displayCat += " (DE➔EN)";
+
+            scores.push({ 
+                name: currentPlayer, 
+                score: score, 
+                max: currentLevelQuestions.length, 
+                time: parseFloat(totalTime), 
+                category: displayCat 
+            });
+            
+            scores.sort((a, b) => b.score - a.score || a.time - b.time);
+            localStorage.setItem('vocabScores', JSON.stringify(scores));
+
+            renderLeaderboard(scores);
+            showScreen('end-screen');
+        }
+
+        function renderLeaderboard(scores) {
+            const cont = document.getElementById('leaderboard-content');
+            
+            if (!scores || scores.length === 0) {
+                cont.innerHTML = '<p style="text-align:center; color: var(--text-muted); font-size:0.9rem;">Noch keine Einträge.</p>';
+                return;
+            }
+
+            cont.innerHTML = scores.slice(0, 5).map((s, i) => `
+                <div class="score-row">
+                    <span>${i+1}. ${s.name} <span style="color:var(--text-muted);font-size:0.75rem;">${s.category}</span></span>
+                    <span><b>${s.score}/${s.max}</b> - ${s.time}s</span>
+                </div>
+            `).join('');
+        }
+
+        function resetLeaderboard() {
+            if(confirm("Möchtest du wirklich alle Spielstände unwiderruflich löschen?")) {
+                localStorage.removeItem('vocabScores');
+                renderLeaderboard([]); 
+            }
+        }
+    </script>
+</body>
+</html>
